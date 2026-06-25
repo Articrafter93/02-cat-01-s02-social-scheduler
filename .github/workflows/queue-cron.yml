@@ -1,0 +1,35 @@
+﻿name: Queue worker + Supabase keep-alive
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  process-queue:
+    name: Process queue
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Trigger queue worker
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          QUEUE_CRON_SECRET: ${{ secrets.QUEUE_CRON_SECRET }}
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}"             -X POST "${APP_URL}/api/queue/process"             -H "x-queue-secret: ${QUEUE_CRON_SECRET}")
+          echo "Queue worker responded: $STATUS"
+          [ "$STATUS" = "200" ] || exit 1
+
+  keep-alive:
+    name: Supabase keep-alive
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Ping Supabase to prevent free-tier pause
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}"             "${SUPABASE_URL}/rest/v1/organizations?select=id&limit=1"             -H "apikey: ${SUPABASE_ANON_KEY}"             -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+          echo "Supabase ping: $STATUS"
+          [ "$STATUS" = "200" ] || [ "$STATUS" = "206" ] || exit 1
