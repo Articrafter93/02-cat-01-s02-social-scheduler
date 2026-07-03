@@ -7,8 +7,8 @@ import type { SocialAccount } from '@/types'
 interface Props { params: Promise<{ org: string }> }
 
 const STATUS_LABEL: Record<string, string> = {
-  connected: 'Conectada',
-  disconnected: 'Desconectada',
+  connected: 'Connected',
+  disconnected: 'Disconnected',
   error: 'Error',
 }
 const STATUS_COLOR: Record<string, string> = {
@@ -17,7 +17,7 @@ const STATUS_COLOR: Record<string, string> = {
   error: '#f43f5e',
 }
 
-export default async function CuentasPage({ params }: Props) {
+export default async function AccountsPage({ params }: Props) {
   const { org: orgSlug } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -49,14 +49,14 @@ export default async function CuentasPage({ params }: Props) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center px-5 py-3 border-b border-edge bg-base flex-shrink-0 h-topbar">
-        <h1 className="text-base font-semibold text-ink-primary">Cuentas conectadas</h1>
+        <h1 className="text-base font-semibold text-ink-primary">Connected accounts</h1>
       </div>
       <div className="flex-1 overflow-auto p-5">
         {(accounts ?? []).length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
             <Share2 className="w-10 h-10 text-ink-disabled" />
-            <p className="text-sm text-ink-secondary">Sin cuentas conectadas</p>
-            <p className="text-xs text-ink-disabled">Las cuentas de redes sociales aparecerán aquí.</p>
+            <p className="text-sm text-ink-secondary">No connected accounts</p>
+            <p className="text-xs text-ink-disabled">Connected social accounts will appear here.</p>
           </div>
         ) : (
           <div className="grid gap-3 max-w-2xl">
@@ -93,8 +93,8 @@ export default async function CuentasPage({ params }: Props) {
         {!isReadOnly && (
           <div className="mt-6 p-4 rounded-lg border border-edge/50 bg-base-panel/50 max-w-2xl">
             <p className="text-xs text-ink-secondary">
-              <strong className="text-ink-primary">Modo sandbox:</strong> Las cuentas usan conectores simulados.
-              Para conectar cuentas reales, usa la skill <code className="text-brand">get-real</code> para migrar este proyecto a producción.
+              <strong className="text-ink-primary">Sandbox mode:</strong> accounts use simulated connectors.
+              Connecting real accounts is a matter of swapping in OAuth — the queue and data model stay the same.
             </p>
           </div>
         )}

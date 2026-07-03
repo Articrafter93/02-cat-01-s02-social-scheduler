@@ -65,7 +65,7 @@ estado_clasificacion: "final"
 ## Implicaciones de seguridad y protocolos
 
 - **`auth` + multi-tenant:** RLS por `organization_id` en Postgres (Supabase). Aislamiento estructural, no solo de UI. Prueba de no-fuga cruzada obligatoria en GATE 9. Login mock no productivo bloqueado en producción.
-- **`api`/`public_api` + `rate_limiting`:** endpoint de procesamiento de cola y endpoints de mutación con límite; respeto de rate limits del lado de los conectores.
+- **`api`/`public_api`:** endpoints de mutación y de procesamiento de cola protegidos por auth + membresía + rol + RLS. **`rate_limiting` NO implementado en el MVP sandbox** (diseño lo contempla; riesgo bajo por ser todo auth-gated); se añadiría en `get-real` antes de tráfico real. Los conectores respetan rate limits del lado de las redes (simulado en sandbox).
 - **`automation`:** cola con idempotencia, reintentos con backoff y DLQ; el worker reclama jobs con lock por fila (sin doble publicación).
 - **`storage`:** media de posts en Supabase Storage con políticas por org.
 - **`cost_sensitive`:** free-tier estricto; Supabase con schema-pooling + keep-alive obligatorio (regla de portafolio) para evitar pausa por inactividad.

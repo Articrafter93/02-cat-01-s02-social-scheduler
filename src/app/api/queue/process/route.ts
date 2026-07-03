@@ -8,7 +8,9 @@ export async function POST(req: NextRequest) {
   // Allow demo mode without secret (for the "Procesar ahora" button)
   const secret = req.headers.get('x-queue-secret') ?? ''
   const expectedSecret = process.env.QUEUE_CRON_SECRET ?? ''
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && process.env.NODE_ENV !== 'production'
+  // Demo opt-in (build-time flag), so the exhibition deploy (NODE_ENV=production)
+  // can trigger the worker from the "Procesar ahora" button without a secret.
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
 
   if (!isDemoMode && secret !== expectedSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

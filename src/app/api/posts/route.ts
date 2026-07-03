@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { isPostMediaUrlForOrg } from '@/lib/media'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -7,14 +8,14 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { body: text, account_ids, scheduled_at, timezone } = body
+  const { body: text, account_ids, scheduled_at, timezone, media_url: mediaUrlRaw } = body
 
-  if (!text?.trim()) return NextResponse.json({ error: 'El texto del post no puede estar vacío.' }, { status: 400 })
+  if (!text?.trim()) return NextResponse.json({ error: 'Post text cannot be empty.' }, { status: 400 })
   if (!Array.isArray(account_ids) || account_ids.length === 0)
-    return NextResponse.json({ error: 'Debes seleccionar al menos una cuenta.' }, { status: 400 })
-  if (!scheduled_at) return NextResponse.json({ error: 'Fecha de publicación requerida.' }, { status: 400 })
+    return NextResponse.json({ error: 'Select at least one account.' }, { status: 400 })
+  if (!scheduled_at) return NextResponse.json({ error: 'A publish date is required.' }, { status: 400 })
   if (new Date(scheduled_at) <= new Date())
-    return NextResponse.json({ error: 'La fecha debe ser en el futuro.' }, { status: 400 })
+    return NextResponse.json({ error: 'The date must be in the future.' }, { status: 400 })
 
   // Verify accounts belong to an org the user has write access to
   const { data: accounts } = await supabase
@@ -23,13 +24,21 @@ export async function POST(req: NextRequest) {
     .in('id', account_ids)
 
   if (!accounts || accounts.length !== account_ids.length)
-    return NextResponse.json({ error: 'Una o más cuentas no existen.' }, { status: 400 })
+    return NextResponse.json({ error: 'One or more accounts do not exist.' }, { status: 400 })
 
   const orgIds = [...new Set(accounts.map((a) => a.organization_id))]
   if (orgIds.length > 1)
-    return NextResponse.json({ error: 'Las cuentas deben pertenecer a la misma organización.' }, { status: 400 })
+    return NextResponse.json({ error: 'Accounts must belong to the same organization.' }, { status: 400 })
 
   const orgId = orgIds[0]
+
+  // Validate media_url (optional): must belong to our bucket AND this org's path,
+  // so a caller can't attach another org's image or an arbitrary external URL.
+  const mediaUrl: string | null =
+    typeof mediaUrlRaw === 'string' && mediaUrlRaw.length > 0 ? mediaUrlRaw : null
+  if (mediaUrl && !isPostMediaUrlForOrg(mediaUrl, orgId, process.env.NEXT_PUBLIC_SUPABASE_URL)) {
+    return NextResponse.json({ error: 'Invalid image.' }, { status: 400 })
+  }
 
   const { data: membership } = await supabase
     .from('memberships')
@@ -39,19 +48,19 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (!membership || membership.role === 'client_readonly')
-    return NextResponse.json({ error: 'Sin permisos de escritura en esta organización.' }, { status: 403 })
+    return NextResponse.json({ error: 'No write permission in this organization.' }, { status: 403 })
 
-  const networks = [...new Set(accounts.map((a) => a.network))] as string[]
+  const networks = [...new Set(accounts.map((a) => a.network))]
 
   // Create post
   const { data: post, error: postError } = await supabase
     .from('posts')
-    .insert({ organization_id: orgId, author_id: user.id, body: text.trim(), networks })
+    .insert({ organization_id: orgId, author_id: user.id, body: text.trim(), networks, media_url: mediaUrl })
     .select('id')
     .single()
 
   if (postError || !post)
-    return NextResponse.json({ error: 'Error al crear el post.' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to create post.' }, { status: 500 })
 
   // Schedule one entry per account
   const schedules = accounts.map((acc) => ({
@@ -66,7 +75,7 @@ export async function POST(req: NextRequest) {
 
   const { error: scheduleError } = await supabase.from('scheduled_posts').insert(schedules)
   if (scheduleError)
-    return NextResponse.json({ error: 'Error al programar el post.' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to schedule post.' }, { status: 500 })
 
   await supabase.from('audit_log').insert({
     organization_id: orgId,

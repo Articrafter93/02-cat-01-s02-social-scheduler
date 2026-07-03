@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { NetworkBadge } from '@/components/ui/NetworkBadge'
@@ -41,9 +42,9 @@ function getWeekDays(anchor: Date) {
   })
 }
 
-const MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
-const DAY_NAMES = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
+const MONTH_NAMES = ['January','February','March','April','May','June',
+  'July','August','September','October','November','December']
+const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 
 export function CalendarView({ scheduledPosts }: Props) {
   const today = new Date()
@@ -101,14 +102,14 @@ export function CalendarView({ scheduledPosts }: Props) {
             <button
               onClick={handlePrev}
               className="p-1.5 rounded hover:bg-base-elevated transition-colors text-ink-secondary hover:text-ink-primary"
-              aria-label="Período anterior"
+              aria-label="Previous period"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={handleNext}
               className="p-1.5 rounded hover:bg-base-elevated transition-colors text-ink-secondary hover:text-ink-primary"
-              aria-label="Período siguiente"
+              aria-label="Next period"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -125,7 +126,7 @@ export function CalendarView({ scheduledPosts }: Props) {
                   : 'text-ink-secondary hover:text-ink-primary'
               }`}
             >
-              {v === 'month' ? 'Mes' : 'Semana'}
+              {v === 'month' ? 'Month' : 'Week'}
             </button>
           ))}
         </div>
@@ -177,7 +178,7 @@ export function CalendarView({ scheduledPosts }: Props) {
                       </button>
                     ))}
                     {posts.length > 3 && (
-                      <p className="text-xs text-ink-disabled pl-1">+{posts.length - 3} más</p>
+                      <p className="text-xs text-ink-disabled pl-1">+{posts.length - 3} more</p>
                     )}
                   </div>
                 </div>
@@ -246,10 +247,20 @@ export function CalendarView({ scheduledPosts }: Props) {
               <StatusBadge status={selected.status} />
             </div>
             <p className="text-sm text-ink-primary whitespace-pre-wrap">{selected.posts.body}</p>
+            {selected.posts.media_url && (
+              <Image
+                src={selected.posts.media_url}
+                alt="Imagen del post"
+                width={400}
+                height={300}
+                unoptimized
+                className="w-full max-h-64 object-cover rounded-lg border border-edge"
+              />
+            )}
             <div className="text-xs text-ink-disabled tabular space-y-1">
-              <p>Programado: {new Date(selected.scheduled_at).toLocaleString('es-CO')}</p>
-              <p>Zona horaria: {selected.timezone}</p>
-              <p>Intentos: {selected.attempts} / {selected.max_attempts}</p>
+              <p>Scheduled: {new Date(selected.scheduled_at).toLocaleString('en-US')}</p>
+              <p>Timezone: {selected.timezone}</p>
+              <p>Attempts: {selected.attempts} / {selected.max_attempts}</p>
               {selected.last_error && (
                 <p className="text-status-failed">Error: {selected.last_error}</p>
               )}
@@ -261,7 +272,7 @@ export function CalendarView({ scheduledPosts }: Props) {
               onClick={() => setSelected(null)}
               className="w-full text-sm text-ink-secondary hover:text-ink-primary transition-colors"
             >
-              Cerrar
+              Close
             </button>
           </div>
         </div>
@@ -281,11 +292,11 @@ function RetryButton({ scheduledPostId, onDone }: { scheduledPostId: string; onD
       const res = await fetch(`/api/scheduled/${scheduledPostId}/retry`, { method: 'POST' })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error ?? 'Error al reintentar')
+        throw new Error(data.error ?? 'Retry failed')
       }
       onDone()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error desconocido')
+      setError(e instanceof Error ? e.message : 'Unknown error')
       setLoading(false)
     }
   }
@@ -298,7 +309,7 @@ function RetryButton({ scheduledPostId, onDone }: { scheduledPostId: string; onD
         disabled={loading}
         className="w-full py-2 text-sm font-medium text-white bg-brand hover:bg-brand-hover disabled:opacity-60 rounded-lg transition-colors"
       >
-        {loading ? 'Reintentando…' : 'Reintentar publicación'}
+        {loading ? 'Retrying…' : 'Retry publication'}
       </button>
     </div>
   )

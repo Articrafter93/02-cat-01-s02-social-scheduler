@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      db: { schema: (process.env.NEXT_PUBLIC_SUPABASE_DB_SCHEMA ?? 'cat01s02_scheduler') as never },
+      db: { schema: (process.env.NEXT_PUBLIC_SUPABASE_DB_SCHEMA ?? 'cat01s02_scheduler') as 'cat01s02_scheduler' },
       cookies: {
         getAll() { return request.cookies.getAll() },
         setAll(cookiesToSet) {

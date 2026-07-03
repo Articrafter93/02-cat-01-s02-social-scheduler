@@ -29,7 +29,7 @@ export function BrandSelector({ currentOrg, allOrgs }: Props) {
         className="w-full flex items-center gap-2.5 px-3 py-3 hover:bg-base-elevated transition-colors text-left"
         aria-expanded={open}
         aria-haspopup="listbox"
-        aria-label={`Marca activa: ${currentOrg.name}. Clic para cambiar.`}
+        aria-label={`Active brand: ${currentOrg.name}. Click to switch.`}
       >
         <span
           className="w-2 h-2 rounded-full flex-shrink-0"
@@ -54,7 +54,7 @@ export function BrandSelector({ currentOrg, allOrgs }: Props) {
           />
           <div
             role="listbox"
-            aria-label="Seleccionar marca"
+            aria-label="Select brand"
             className="absolute top-full left-0 right-0 z-20 bg-base-panel border-x border-b border-edge rounded-b-lg shadow-2xl overflow-hidden"
           >
             {allOrgs.map((org) => {

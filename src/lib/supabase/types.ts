@@ -19,6 +19,7 @@ export interface Database {
         }
         Insert: Partial<Pick<Database['cat01s02_scheduler']['Tables']['organizations']['Row'], 'id' | 'timezone' | 'color' | 'created_at'>> & Pick<Database['cat01s02_scheduler']['Tables']['organizations']['Row'], 'name' | 'slug'>
         Update: Partial<Database['cat01s02_scheduler']['Tables']['organizations']['Row']>
+        Relationships: []
       }
       memberships: {
         Row: {
@@ -30,6 +31,15 @@ export interface Database {
         }
         Insert: Partial<Pick<Database['cat01s02_scheduler']['Tables']['memberships']['Row'], 'id' | 'created_at'>> & Pick<Database['cat01s02_scheduler']['Tables']['memberships']['Row'], 'user_id' | 'organization_id' | 'role'>
         Update: Partial<Database['cat01s02_scheduler']['Tables']['memberships']['Row']>
+        Relationships: [
+          {
+            foreignKeyName: 'memberships_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
       }
       social_accounts: {
         Row: {
@@ -43,6 +53,15 @@ export interface Database {
         }
         Insert: Partial<Pick<Database['cat01s02_scheduler']['Tables']['social_accounts']['Row'], 'id' | 'status' | 'created_at'>> & Pick<Database['cat01s02_scheduler']['Tables']['social_accounts']['Row'], 'organization_id' | 'network' | 'display_name' | 'handle'>
         Update: Partial<Database['cat01s02_scheduler']['Tables']['social_accounts']['Row']>
+        Relationships: [
+          {
+            foreignKeyName: 'social_accounts_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
       }
       posts: {
         Row: {
@@ -57,6 +76,15 @@ export interface Database {
         }
         Insert: Partial<Pick<Database['cat01s02_scheduler']['Tables']['posts']['Row'], 'id' | 'author_id' | 'media_url' | 'created_at' | 'updated_at'>> & Pick<Database['cat01s02_scheduler']['Tables']['posts']['Row'], 'organization_id' | 'body' | 'networks'>
         Update: Partial<Database['cat01s02_scheduler']['Tables']['posts']['Row']>
+        Relationships: [
+          {
+            foreignKeyName: 'posts_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
       }
       scheduled_posts: {
         Row: {
@@ -79,6 +107,29 @@ export interface Database {
         }
         Insert: Partial<Pick<Database['cat01s02_scheduler']['Tables']['scheduled_posts']['Row'], 'id' | 'status' | 'attempts' | 'max_attempts' | 'next_attempt_at' | 'locked_at' | 'locked_by' | 'last_error' | 'published_at' | 'created_at' | 'updated_at'>> & Pick<Database['cat01s02_scheduler']['Tables']['scheduled_posts']['Row'], 'post_id' | 'account_id' | 'organization_id' | 'scheduled_at' | 'timezone'>
         Update: Partial<Database['cat01s02_scheduler']['Tables']['scheduled_posts']['Row']>
+        Relationships: [
+          {
+            foreignKeyName: 'scheduled_posts_post_id_fkey'
+            columns: ['post_id']
+            isOneToOne: false
+            referencedRelation: 'posts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'scheduled_posts_account_id_fkey'
+            columns: ['account_id']
+            isOneToOne: false
+            referencedRelation: 'social_accounts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'scheduled_posts_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
       }
       metrics: {
         Row: {
@@ -93,6 +144,22 @@ export interface Database {
         }
         Insert: Partial<Pick<Database['cat01s02_scheduler']['Tables']['metrics']['Row'], 'id' | 'reach' | 'impressions' | 'engagement' | 'created_at'>> & Pick<Database['cat01s02_scheduler']['Tables']['metrics']['Row'], 'account_id' | 'organization_id' | 'date'>
         Update: Partial<Database['cat01s02_scheduler']['Tables']['metrics']['Row']>
+        Relationships: [
+          {
+            foreignKeyName: 'metrics_account_id_fkey'
+            columns: ['account_id']
+            isOneToOne: false
+            referencedRelation: 'social_accounts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'metrics_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
       }
       audit_log: {
         Row: {
@@ -107,7 +174,19 @@ export interface Database {
         }
         Insert: Partial<Pick<Database['cat01s02_scheduler']['Tables']['audit_log']['Row'], 'id' | 'actor_id' | 'target_type' | 'target_id' | 'metadata' | 'created_at'>> & Pick<Database['cat01s02_scheduler']['Tables']['audit_log']['Row'], 'organization_id' | 'action'>
         Update: Partial<Database['cat01s02_scheduler']['Tables']['audit_log']['Row']>
+        Relationships: [
+          {
+            foreignKeyName: 'audit_log_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
       }
+    }
+    Views: {
+      [_ in never]: never
     }
     Functions: {
       claim_next_jobs: {
@@ -127,6 +206,12 @@ export interface Database {
           account_display_name: string
         }[]
       }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }

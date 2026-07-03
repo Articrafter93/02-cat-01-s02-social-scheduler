@@ -16,18 +16,18 @@ interface Props {
 }
 
 const NAV_ITEMS = [
-  { label: 'Calendario', path: 'calendario', icon: Calendar, writeOnly: false, adminOnly: false },
-  { label: 'Componer', path: 'componer', icon: Edit3, writeOnly: true, adminOnly: false },
-  { label: 'Cola / DLQ', path: 'cola', icon: List, writeOnly: false, adminOnly: false },
-  { label: 'Métricas', path: 'metricas', icon: BarChart2, writeOnly: false, adminOnly: false },
-  { label: 'Cuentas', path: 'cuentas', icon: Share2, writeOnly: false, adminOnly: false },
-  { label: 'Ajustes', path: 'ajustes', icon: Settings, writeOnly: false, adminOnly: true },
+  { label: 'Calendar', path: 'calendario', icon: Calendar, writeOnly: false, adminOnly: false },
+  { label: 'Compose', path: 'componer', icon: Edit3, writeOnly: true, adminOnly: false },
+  { label: 'Queue / DLQ', path: 'cola', icon: List, writeOnly: false, adminOnly: false },
+  { label: 'Metrics', path: 'metricas', icon: BarChart2, writeOnly: false, adminOnly: false },
+  { label: 'Accounts', path: 'cuentas', icon: Share2, writeOnly: false, adminOnly: false },
+  { label: 'Settings', path: 'ajustes', icon: Settings, writeOnly: false, adminOnly: true },
 ] as const
 
 const ROLE_LABEL: Record<MemberRole, string> = {
-  admin: 'Administrador',
-  member: 'Miembro',
-  client_readonly: 'Solo lectura',
+  admin: 'Admin',
+  member: 'Member',
+  client_readonly: 'Read-only',
 }
 
 export function Sidebar({ currentOrg, allOrgs, currentOrgSlug, userRole, userEmail }: Props) {
@@ -45,7 +45,7 @@ export function Sidebar({ currentOrg, allOrgs, currentOrgSlug, userRole, userEma
   return (
     <nav
       className="w-sidebar flex-shrink-0 bg-base border-r border-edge flex flex-col h-full"
-      aria-label="Navegación principal"
+      aria-label="Main navigation"
     >
       {/* Brand selector */}
       <BrandSelector currentOrg={currentOrg} allOrgs={allOrgs} />
@@ -80,7 +80,7 @@ export function Sidebar({ currentOrg, allOrgs, currentOrgSlug, userRole, userEma
         {isReadOnly && (
           <div className="mx-3 mt-4">
             <span className="inline-flex items-center text-xs text-ink-disabled bg-base-panel border border-edge rounded px-2 py-1">
-              Vista de solo lectura
+              Read-only view
             </span>
           </div>
         )}
@@ -105,10 +105,10 @@ export function Sidebar({ currentOrg, allOrgs, currentOrgSlug, userRole, userEma
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-ink-secondary hover:text-status-failed hover:bg-status-failed/10 rounded-md transition-colors"
-          aria-label="Cerrar sesión"
+          aria-label="Log out"
         >
           <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
-          Cerrar sesión
+          Log out
         </button>
       </div>
     </nav>

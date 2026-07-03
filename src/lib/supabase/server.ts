@@ -7,7 +7,7 @@ const SCHEMA = (process.env.NEXT_PUBLIC_SUPABASE_DB_SCHEMA ?? 'cat01s02_schedule
 export async function createClient() {
   const cookieStore = await cookies()
 
-  return createServerClient<Database>(
+  return createServerClient<Database, 'cat01s02_scheduler'>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -31,7 +31,7 @@ export async function createClient() {
 export async function createAdminClient() {
   const cookieStore = await cookies()
 
-  return createServerClient<Database>(
+  return createServerClient<Database, 'cat01s02_scheduler'>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
@@ -52,7 +52,7 @@ export async function createAdminClient() {
 }
 
 export async function createWorkerClient() {
-  return createServerClient<Database>(
+  return createServerClient<Database, 'cat01s02_scheduler'>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {

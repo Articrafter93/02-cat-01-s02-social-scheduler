@@ -8,24 +8,27 @@ import { createClient } from '@/lib/supabase/client'
 const DEMO_ACCOUNTS = [
   {
     email: 'admin@demo.cat01s02',
-    label: 'Administrador de agencia',
-    description: 'Acceso total · Acme Corp',
+    label: 'Agency admin',
+    description: 'Full access · Acme Corp',
   },
   {
     email: 'member@demo.cat01s02',
-    label: 'Miembro del equipo',
+    label: 'Team member',
     description: 'Editor · Acme Corp',
   },
   {
     email: 'client@demo.cat01s02',
-    label: 'Cliente (solo lectura)',
-    description: 'Solo lectura · Brand Nova',
+    label: 'Client (read-only)',
+    description: 'Read-only · Brand Nova',
   },
 ] as const
 
-const isDemoMode =
-  process.env.NEXT_PUBLIC_DEMO_MODE === 'true' &&
-  process.env.NODE_ENV !== 'production'
+// Demo login mock: OFF by default; enabled only via the explicit build-time
+// opt-in NEXT_PUBLIC_DEMO_MODE=true, which is set on the portfolio exhibition
+// deploy (itself NODE_ENV=production). A real production deploy that does NOT
+// set the flag has no mock auth — so the guard stays intact while the recruiter
+// demo remains reachable while a real production deploy without the flag has no mock auth.
+const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
 
 const DEMO_PASSWORD = isDemoMode
   ? (process.env.NEXT_PUBLIC_DEMO_PASSWORD ?? 'demo1234')
@@ -56,7 +59,7 @@ export default function LoginPage() {
     })
 
     if (authError) {
-      setError('Credenciales incorrectas. Verifica e inténtalo de nuevo.')
+      setError('Incorrect credentials. Please check and try again.')
       setLoading(false)
       return
     }
@@ -74,14 +77,14 @@ export default function LoginPage() {
             <span className="text-white font-bold text-lg leading-none">S</span>
           </div>
           <h1 className="text-xl font-bold text-ink-primary">Social Scheduler</h1>
-          <p className="text-ink-secondary text-sm mt-1">Agenda editorial para agencias</p>
+          <p className="text-ink-secondary text-sm mt-1">Editorial calendar for agencies</p>
         </div>
 
         {/* Selector de cuentas demo */}
         {isDemoMode && (
           <div className="mb-4 p-3 rounded-lg border border-edge bg-base-panel">
             <p className="text-xs font-semibold text-ink-disabled uppercase tracking-widest mb-2">
-              Cuentas demo
+              Demo accounts
             </p>
             <div className="space-y-1">
               {DEMO_ACCOUNTS.map((acc) => (
@@ -107,7 +110,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-ink-secondary mb-1" htmlFor="email">
-              Correo electrónico
+              Email
             </label>
             <input
               id="email"
@@ -116,16 +119,16 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 bg-base-panel border border-edge rounded-lg text-sm text-ink-primary placeholder:text-ink-disabled focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/40 transition-colors"
-              placeholder="email@ejemplo.com"
+              placeholder="you@example.com"
               autoComplete="email"
             />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-ink-secondary mb-1" htmlFor="password">
-              Contraseña
+              Password
               {isDemoMode && (
-                <span className="ml-1 text-ink-disabled font-normal">(pre-llenada para demo)</span>
+                <span className="ml-1 text-ink-disabled font-normal">(pre-filled for demo)</span>
               )}
             </label>
             <input
@@ -156,13 +159,13 @@ export default function LoginPage() {
             ) : (
               <LogIn className="w-4 h-4" />
             )}
-            {loading ? 'Ingresando…' : 'Ingresar'}
+            {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
         {isDemoMode && (
           <p className="text-center text-xs text-ink-disabled mt-5">
-            Entorno demo · datos ficticios · sin conexión a redes reales
+            Demo environment · fictional data · no connection to real networks
           </p>
         )}
       </div>

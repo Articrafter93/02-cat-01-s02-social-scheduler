@@ -6,7 +6,7 @@ import type { SocialAccount, Metrics } from '@/types'
 
 interface Props { params: Promise<{ org: string }> }
 
-export default async function MetricasPage({ params }: Props) {
+export default async function MetricsPage({ params }: Props) {
   const { org: orgSlug } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -49,11 +49,11 @@ export default async function MetricasPage({ params }: Props) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center px-5 py-3 border-b border-edge bg-base flex-shrink-0 h-topbar">
-        <h1 className="text-base font-semibold text-ink-primary">Métricas</h1>
+        <h1 className="text-base font-semibold text-ink-primary">Metrics</h1>
       </div>
       <div className="flex-1 overflow-auto p-5 space-y-5">
         {(accounts ?? []).length === 0 ? (
-          <EmptyState message="No hay cuentas conectadas en esta marca." />
+          <EmptyState message="No connected accounts for this brand." />
         ) : (
           (accounts as SocialAccount[]).map((acc) => {
             const accMetrics = metricsMap.get(acc.id) ?? []
@@ -92,29 +92,29 @@ function AccountMetricsPanel({ account, metrics }: { account: SocialAccount; met
       {!hasData ? (
         <div className="flex flex-col items-center justify-center py-10 gap-2">
           <BarChart2 className="w-8 h-8 text-ink-disabled" aria-hidden="true" />
-          <p className="text-sm text-ink-secondary">Sin datos todavía</p>
+          <p className="text-sm text-ink-secondary">No data yet</p>
           <p className="text-xs text-ink-disabled">
-            Las métricas aparecen cuando se publican posts desde esta cuenta.
+            Metrics appear once posts are published from this account.
           </p>
         </div>
       ) : (
         <div className="p-4 space-y-4">
           {/* Summary cards */}
           <div className="grid grid-cols-3 gap-3">
-            <MetricCard label="Alcance total" value={totals.reach} />
-            <MetricCard label="Impresiones" value={totals.impressions} />
-            <MetricCard label="Interacciones" value={totals.engagement} />
+            <MetricCard label="Total reach" value={totals.reach} />
+            <MetricCard label="Impressions" value={totals.impressions} />
+            <MetricCard label="Engagement" value={totals.engagement} />
           </div>
           {/* Last 7 rows */}
           <div>
-            <p className="text-xs font-semibold text-ink-disabled mb-2">Últimas 7 entradas</p>
+            <p className="text-xs font-semibold text-ink-disabled mb-2">Last 7 entries</p>
             <div className="space-y-1">
               {metrics.slice(0, 7).map((m) => (
                 <div key={m.id} className="flex items-center gap-4 text-xs tabular">
                   <span className="text-ink-disabled w-20 flex-shrink-0">{m.date}</span>
-                  <span className="text-ink-secondary flex-1">Alcance: <span className="text-ink-primary">{m.reach.toLocaleString()}</span></span>
-                  <span className="text-ink-secondary flex-1">Imp.: <span className="text-ink-primary">{m.impressions.toLocaleString()}</span></span>
-                  <span className="text-ink-secondary flex-1">Int.: <span className="text-ink-primary">{m.engagement.toLocaleString()}</span></span>
+                  <span className="text-ink-secondary flex-1">Reach: <span className="text-ink-primary">{m.reach.toLocaleString('en-US')}</span></span>
+                  <span className="text-ink-secondary flex-1">Impr.: <span className="text-ink-primary">{m.impressions.toLocaleString('en-US')}</span></span>
+                  <span className="text-ink-secondary flex-1">Eng.: <span className="text-ink-primary">{m.engagement.toLocaleString('en-US')}</span></span>
                 </div>
               ))}
             </div>
@@ -128,7 +128,7 @@ function AccountMetricsPanel({ account, metrics }: { account: SocialAccount; met
 function MetricCard({ label, value }: { label: string; value: number }) {
   return (
     <div className="bg-base rounded-lg p-3 border border-edge">
-      <p className="text-2xl font-bold text-ink-primary tabular">{value.toLocaleString('es-CO')}</p>
+      <p className="text-2xl font-bold text-ink-primary tabular">{value.toLocaleString('en-US')}</p>
       <p className="text-xs text-ink-secondary mt-0.5">{label}</p>
     </div>
   )

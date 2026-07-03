@@ -55,12 +55,14 @@ async function main() {
     }
 
     const { data, error } = await supabase.auth.admin.createUser({
+      // Fixed UUID so seed.sql foreign keys resolve. The admin API (unlike a
+      // raw INSERT into auth.users) also sets GoTrue's token columns to '',
+      // avoiding the "converting NULL to string" 500 on sign-in.
+      id: user.id,
       user_metadata: {},
       email: user.email,
       password: DEMO_PASSWORD,
       email_confirm: true,
-      // Fix UUID so seed.sql foreign keys work
-      // Note: Supabase admin API accepts id via options
     })
 
     if (error) {

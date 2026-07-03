@@ -1,123 +1,122 @@
-# Social Media Scheduler — Programador de Redes Sociales
+# Social Media Scheduler
 
-SaaS multi-tenant para agencias de marketing que gestionan múltiples marcas. Programa, publica y monitorea posts en Instagram, LinkedIn y Facebook con aislamiento total por marca, cola de publicación con reintentos automáticos y dead-letter queue visible.
+Multi-tenant SaaS for marketing agencies that manage several brands at once. Schedule, publish, and monitor posts across Instagram, LinkedIn, and Facebook with strict per-brand isolation, a reliable publishing queue with automatic retries, and a visible dead-letter queue.
 
-**Demo en vivo:** _pendiente deploy Vercel (GATE 9)_  
-**Repositorio:** https://github.com/Articrafter93/cat-01-s02-social-scheduler
+**Live demo:** _pending Vercel deploy_
+**Repository:** https://github.com/Articrafter93/cat-01-s02-social-scheduler
 
 ---
 
-## Acceso demo rápido
+## Quick demo access
 
-> Login sin fricción diseñado para reclutadores: selector de rol + contraseña prellenada.
+> Friction-free login built for reviewers: role selector + pre-filled password.
 
-| Rol | Email | Contraseña | Acceso |
+| Role | Email | Password | Access |
 |---|---|---|---|
-| Administrador | `admin@demo.cat01s02` | `demo1234` | Acme Corp — todo |
-| Miembro del equipo | `member@demo.cat01s02` | `demo1234` | Acme Corp — editor |
-| Cliente (solo lectura) | `client@demo.cat01s02` | `demo1234` | Brand Nova — solo lectura |
+| Agency admin | `admin@demo.cat01s02` | `demo1234` | Acme Corp + Brand Nova — full |
+| Team member | `member@demo.cat01s02` | `demo1234` | Acme Corp — editor |
+| Client (read-only) | `client@demo.cat01s02` | `demo1234` | Brand Nova — read-only |
 
-Logout visible en el sidebar → permite cambiar de rol sin cerrar el navegador.
-
----
-
-## Por qué este proyecto
-
-Demuestra la combinación de habilidades que más valoran los clientes de agencias:
-
-- **Multi-tenancy real con RLS:** cada marca vive en su propio schema-scope de Postgres. El admin de Acme Corp no puede ver ni tocar datos de Brand Nova — no es solo filtro en UI, es aislamiento estructural a nivel de base de datos.
-- **Cola confiable con machine de estados:** `draft → scheduled → publishing → published | failed → retrying → dead`. El worker usa `FOR UPDATE SKIP LOCKED` para que múltiples instancias no dupliquen trabajos. Posts fallidos van a DLQ con contador de intentos y último error visible; el botón "Reintentar" los devuelve a la cola.
-- **Sin perder posts:** la decisión de diseño más importante del proyecto (requisito explícito del cliente: "no podemos perder ninguna publicación programada"). El exponential backoff asegura que un fallo temporal no queme los reintentos de golpe.
-- **Tres roles con RLS:** `admin` (CRUD), `member` (editor), `client_readonly` (solo lectura). El cliente no ve el botón "Nuevo post" ni puede llamar a la API — el bloqueo es en servidor, no en CSS.
+A visible logout in the sidebar lets you switch roles without closing the browser.
 
 ---
 
-## Stack y decisiones técnicas
+## Why this project
 
-| Capa | Decisión | Por qué |
+It demonstrates the mix of skills agencies care about most:
+
+- **Real multi-tenancy with RLS:** every brand lives in its own Postgres schema-scope. The Acme Corp admin cannot see or touch Brand Nova's data — it is not a UI filter, it is structural isolation at the database level (Row-Level Security).
+- **Reliable queue with a state machine:** `draft → scheduled → publishing → published | failed → retrying → dead`. The worker uses `FOR UPDATE SKIP LOCKED` so multiple instances never duplicate jobs. Failed posts land in a DLQ with an attempt counter and the last error visible; the "Retry" button sends them back to the queue.
+- **Never drop a post:** the most important design decision (an explicit client requirement: "we cannot lose a single scheduled post"). Exponential backoff ensures a transient failure does not burn all retries at once.
+- **Three roles with RLS:** `admin` (CRUD), `member` (editor), `client_readonly` (read-only). The client never sees the "New post" button and cannot call the API — the block is server-side, not CSS.
+
+---
+
+## Stack and technical decisions
+
+| Layer | Decision | Why |
 |---|---|---|
-| App | Next.js 15 (App Router, TypeScript) | SSR + API Routes en un solo repo; deploy gratuito en Vercel |
-| Styling | Tailwind CSS, diseño propio | Free-first, control total de tokens; sin dependencia de Figma |
-| Auth | Supabase Auth + middleware SSR | Sesión SSR sin JWT en cliente; redirección en edge |
-| DB | Supabase Postgres + RLS | Schema-pooling (free tier); RLS como segunda capa de seguridad |
-| Cola | Tabla Postgres + stored function | `FOR UPDATE SKIP LOCKED` = worker idempotente; sin Redis |
-| Conectores | Simulados deterministas (IG/LI/FB) | Demo sin OAuth real; reemplazables 1:1 con `get-real` |
-| Deploy | Vercel + GitHub Actions cron `*/5` | Gratuito; el cron dispara el worker y hace keep-alive de Supabase |
+| App | Next.js 15 (App Router, TypeScript) | SSR + API routes in one repo; free Vercel deploy |
+| Styling | Tailwind CSS, custom design | Free-first, full token control; no Figma dependency |
+| Auth | Supabase Auth + SSR middleware | SSR session without a client-side JWT; redirect at the edge |
+| DB | Supabase Postgres + RLS | Schema-pooling (free tier); RLS as a second security layer |
+| Queue | Postgres table + stored function | `FOR UPDATE SKIP LOCKED` = idempotent worker; no Redis |
+| Storage | Supabase Storage + per-org RLS | Post images; writes scoped to org membership by path |
+| Connectors | Deterministic simulators (IG/LI/FB) | Demo without real OAuth; swappable 1:1 for `get-real` |
+| Deploy | Vercel + GitHub Actions cron `*/5` | Free; the cron fires the worker and keeps Supabase awake |
 
-**Por qué Postgres como cola y no una queue externa:** para una agencia SMB con < 1000 posts/día, Postgres con `SKIP LOCKED` elimina una dependencia de infraestructura, mantiene el historial en la misma BD que los datos del negocio y simplifica el debugging (el DLQ es una query SELECT). Es la elección correcta para este alcance.
+**Why Postgres as the queue instead of an external one:** for an SMB agency with < 1000 posts/day, Postgres with `SKIP LOCKED` removes an infrastructure dependency, keeps the history in the same DB as the business data, and simplifies debugging (the DLQ is a plain `SELECT`). It is the right call for this scope.
 
 ---
 
-## Estructura del código
+## Code layout
 
 ```
 src/
 ├── app/
-│   ├── login/              # Mock login con selector de roles
+│   ├── login/              # Mock login with role selector
 │   ├── app/[org]/
-│   │   ├── calendario/     # Vista mes/semana con modal de detalle
-│   │   ├── componer/       # Formulario multi-cuenta con validación
-│   │   ├── cola/           # Tabla de cola con filtros y DLQ
-│   │   ├── metricas/       # Panel por cuenta con empty state honesto
-│   │   ├── cuentas/        # Cuentas conectadas + indicador sandbox
-│   │   └── ajustes/        # Config de org (admin only)
+│   │   ├── calendario/     # Month/week calendar with detail modal
+│   │   ├── componer/       # Multi-account composer with validation + image
+│   │   ├── cola/           # Queue table with filters and DLQ
+│   │   ├── metricas/       # Per-account panel with honest empty state
+│   │   ├── cuentas/        # Connected accounts + sandbox indicator
+│   │   └── ajustes/        # Org settings (admin only)
 │   └── api/
-│       ├── posts/          # CRUD de posts con validación de permisos
-│       ├── scheduled/[id]/retry/   # Retry de posts fallidos/muertos
-│       ├── accounts/       # Listado de cuentas por org
-│       └── queue/process/  # Worker endpoint (cron + demo manual)
+│       ├── posts/          # Post CRUD with permission checks + media validation
+│       ├── scheduled/[id]/retry/   # Retry failed/dead posts
+│       ├── accounts/       # Accounts per org
+│       └── queue/process/  # Worker endpoint (cron + manual demo)
 ├── components/
-│   ├── layout/             # Sidebar, BrandSelector (con aria)
-│   ├── calendar/           # CalendarView mes/semana
-│   ├── composer/           # ComposerForm con char limits por red
-│   ├── queue/              # QueueTable con filtros
+│   ├── layout/             # Sidebar, BrandSelector (with aria)
+│   ├── calendar/           # CalendarView month/week
+│   ├── composer/           # ComposerForm with per-network char limits + preview
+│   ├── queue/              # QueueTable with filters
 │   └── ui/                 # StatusBadge, NetworkBadge
 ├── lib/
 │   ├── supabase/           # client, server (SSR), worker clients + types
 │   ├── connectors/         # base interface + IG/LI/FB sandbox
 │   └── queue/              # worker.ts (claim_next_jobs + backoff)
-└── middleware.ts            # Auth redirect + queue bypass
+└── middleware.ts           # Auth redirect + queue bypass
 ```
+
+> Note: route folder names are kept in Spanish (`calendario`, `componer`…) because they are the deployed URL paths; renaming them is a cosmetic change deferred to avoid churn. All user-facing copy is English.
 
 ---
 
-## Ejecutar en local
+## Run locally
 
 ```bash
-# 1. Clonar y entrar
 git clone https://github.com/Articrafter93/cat-01-s02-social-scheduler
 cd cat-01-s02-social-scheduler
-
-# 2. Crear .env.local con valores de Supabase (ver QUE-FALTA.md)
-
-# 3. Instalar y arrancar
 npm install
-npm run dev
-# → http://localhost:3000
+npm run dev        # → http://localhost:3000
 ```
 
-La BD ya tiene datos demo (migraciones aplicadas en Supabase). No hace falta ejecutar seeds manualmente para la demo.
+You will need a `.env.local` with your Supabase project values (URL, anon key, service role, schema). See `.env.example` for the keys.
 
 ---
 
 ## Tests
 
 ```bash
-npm run type-check   # TypeScript strict — 0 errores
-npm run lint         # ESLint next/core-web-vitals
-npm run build        # Build de producción
+npm run test         # Vitest unit suite
+npm run type-check   # TypeScript strict — 0 errors
+npm run lint         # ESLint
+npm run build        # Production build
 ```
 
-Los tests de integración del worker de cola (idempotencia, backoff, transiciones de estado) son la pieza más crítica del proyecto: verifican el invariante "no se pierde ningún post".
+The unit suite covers the non-obvious critical logic: exponential backoff bounds, the deterministic connectors, per-network character limits, and the `media_url` ownership validation that prevents attaching another org's image. These are the pieces that guard the "never drop a post" invariant and the multi-tenant boundary.
 
 ---
 
-## Lo que no está (y por qué)
+## What is not here (and why)
 
-- **OAuth real con Instagram/LinkedIn/Facebook:** requiere app reviews de las plataformas y tokens que caducan. Los conectores simulados demuestran la misma arquitectura; la sustitución es una implementación de interfaz, no un rediseño.
-- **X/Twitter:** API de pago desde 2023. Fuera del alcance explícito del cliente.
-- **Flujo de aprobación cliente:** funcionalidad COULD del contrato; no bloqueante para el MVP.
+- **Real OAuth with Instagram/LinkedIn/Facebook:** requires platform app reviews and tokens that expire. The simulated connectors demonstrate the same architecture; swapping them in is an interface implementation, not a redesign.
+- **X/Twitter:** paid API since 2023, and out of the client's explicit scope.
+- **Rate limiting on the internal API:** the endpoints are auth-gated (login + membership), so the abuse surface is minimal for the demo; a limiter (e.g. Upstash) would be added before real traffic.
+- **Client approval flow before publishing:** a COULD-level feature, not required for the MVP.
 
 ---
 
-_Proyecto ficticio de portafolio — sandbox-first. Los datos son ficticios; las cuentas demo son de prueba; no habilita producción real._
+_Sandbox build: the data is fictional, the demo accounts are for testing, and the social connectors run in simulation mode — no posts reach real networks. In production, the connector layer is replaced with real OAuth without touching the queue._

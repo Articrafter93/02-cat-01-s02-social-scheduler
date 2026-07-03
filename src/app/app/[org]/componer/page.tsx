@@ -5,7 +5,7 @@ import type { SocialAccount } from '@/types'
 
 interface Props { params: Promise<{ org: string }> }
 
-export default async function ComponerPage({ params }: Props) {
+export default async function ComposePage({ params }: Props) {
   const { org: orgSlug } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -36,11 +36,12 @@ export default async function ComponerPage({ params }: Props) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center px-5 py-3 border-b border-edge bg-base flex-shrink-0 h-topbar">
-        <h1 className="text-base font-semibold text-ink-primary">Componer post</h1>
+        <h1 className="text-base font-semibold text-ink-primary">Compose post</h1>
       </div>
       <div className="flex-1 overflow-auto p-6">
         <ComposerForm
           accounts={(accounts ?? []) as SocialAccount[]}
+          orgId={org.id}
           orgSlug={orgSlug}
           orgTimezone={org.timezone}
         />

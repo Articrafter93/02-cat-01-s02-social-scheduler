@@ -3,6 +3,27 @@
 -- Demo UUIDs match those in scripts/create-demo-users.ts
 
 -- ──────────────────────────────────────────────────────────────────
+-- Normalize GoTrue token columns for demo users.
+-- When auth.users are seeded via raw SQL, these columns default to NULL,
+-- and GoTrue's /token endpoint then 500s with
+-- "converting NULL to string is unsupported". They MUST be '' (empty string).
+-- ──────────────────────────────────────────────────────────────────
+UPDATE auth.users SET
+  confirmation_token         = coalesce(confirmation_token, ''),
+  recovery_token             = coalesce(recovery_token, ''),
+  email_change               = coalesce(email_change, ''),
+  email_change_token_new     = coalesce(email_change_token_new, ''),
+  email_change_token_current = coalesce(email_change_token_current, ''),
+  phone_change               = coalesce(phone_change, ''),
+  phone_change_token         = coalesce(phone_change_token, ''),
+  reauthentication_token     = coalesce(reauthentication_token, '')
+WHERE id IN (
+  '20000000-0000-0000-0000-000000000001',
+  '20000000-0000-0000-0000-000000000002',
+  '20000000-0000-0000-0000-000000000003'
+);
+
+-- ──────────────────────────────────────────────────────────────────
 -- Organizations
 -- ──────────────────────────────────────────────────────────────────
 INSERT INTO cat01s02_scheduler.organizations (id, name, slug, color, timezone) VALUES
@@ -16,8 +37,11 @@ ON CONFLICT (id) DO NOTHING;
 -- member@demo.cat01s02   → 20000000-0000-0000-0000-000000000002
 -- client@demo.cat01s02   → 20000000-0000-0000-0000-000000000003
 -- ──────────────────────────────────────────────────────────────────
+-- Agency admin manages BOTH brands (core of the brief: an agency handling
+-- several clients). This makes the multi-brand switch demonstrable.
 INSERT INTO cat01s02_scheduler.memberships (user_id, organization_id, role) VALUES
   ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'admin'),
+  ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000002', 'admin'),
   ('20000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'member'),
   ('20000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000002', 'client_readonly')
 ON CONFLICT (user_id, organization_id) DO NOTHING;
@@ -43,7 +67,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO cat01s02_scheduler.posts (id, organization_id, author_id, body, networks) VALUES
   ('40000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001',
    '20000000-0000-0000-0000-000000000001',
-   '🚀 Lanzamos nuestra nueva línea de productos. ¡Visita nuestra web y descubre las novedades!',
+   '🚀 We just launched our new product line. Visit our site to discover what''s new!',
    ARRAY['instagram','linkedin'])
 ON CONFLICT (id) DO NOTHING;
 
@@ -61,7 +85,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO cat01s02_scheduler.posts (id, organization_id, author_id, body, networks) VALUES
   ('40000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001',
    '20000000-0000-0000-0000-000000000002',
-   'Este miércoles evento en vivo. Recuerda inscribirte con anticipación — cupos limitados.',
+   'Live event this Wednesday. Remember to register early — seats are limited.',
    ARRAY['facebook','linkedin'])
 ON CONFLICT (id) DO NOTHING;
 
@@ -79,7 +103,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO cat01s02_scheduler.posts (id, organization_id, author_id, body, networks) VALUES
   ('40000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000001',
    '20000000-0000-0000-0000-000000000001',
-   'Detrás de cámaras: así es un día de trabajo en Acme Corp. #teamwork',
+   'Behind the scenes: a day of work at Acme Corp. #teamwork',
    ARRAY['instagram'])
 ON CONFLICT (id) DO NOTHING;
 
@@ -96,7 +120,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO cat01s02_scheduler.posts (id, organization_id, author_id, body, networks) VALUES
   ('40000000-0000-0000-0000-000000000004', '10000000-0000-0000-0000-000000000001',
    '20000000-0000-0000-0000-000000000001',
-   'Nuestro reporte anual ya está disponible. Resultados que hablan por sí solos.',
+   'Our annual report is out. Results that speak for themselves.',
    ARRAY['linkedin'])
 ON CONFLICT (id) DO NOTHING;
 
@@ -113,7 +137,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO cat01s02_scheduler.posts (id, organization_id, author_id, body, networks) VALUES
   ('40000000-0000-0000-0000-000000000005', '10000000-0000-0000-0000-000000000001',
    '20000000-0000-0000-0000-000000000002',
-   'Borrador: ideas para la próxima campaña de verano. ¿Cuál es tu color favorito?',
+   'Draft: ideas for the upcoming summer campaign. What''s your favorite color?',
    ARRAY['instagram','facebook'])
 ON CONFLICT (id) DO NOTHING;
 
@@ -128,7 +152,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO cat01s02_scheduler.posts (id, organization_id, author_id, body, networks) VALUES
   ('40000000-0000-0000-0000-000000000006', '10000000-0000-0000-0000-000000000001',
    '20000000-0000-0000-0000-000000000001',
-   'Pronto grandes noticias. Mantente atento a nuestras redes. 👀',
+   'Big news coming soon. Stay tuned to our channels. 👀',
    ARRAY['facebook'])
 ON CONFLICT (id) DO NOTHING;
 
@@ -145,7 +169,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO cat01s02_scheduler.posts (id, organization_id, author_id, body, networks) VALUES
   ('40000000-0000-0000-0000-000000000007', '10000000-0000-0000-0000-000000000002',
    '20000000-0000-0000-0000-000000000001',
-   'Brand Nova: nueva colección disponible. Diseño que inspira, calidad que perdura.',
+   'Brand Nova: new collection available. Design that inspires, quality that lasts.',
    ARRAY['instagram'])
 ON CONFLICT (id) DO NOTHING;
 

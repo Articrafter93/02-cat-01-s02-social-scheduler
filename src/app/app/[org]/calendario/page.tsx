@@ -7,7 +7,7 @@ import type { ScheduledPostWithDetails } from '@/types'
 
 interface Props { params: Promise<{ org: string }> }
 
-export default async function CalendarioPage({ params }: Props) {
+export default async function CalendarPage({ params }: Props) {
   const { org: orgSlug } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -44,14 +44,14 @@ export default async function CalendarioPage({ params }: Props) {
     <div className="flex flex-col h-full">
       {/* Topbar */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-edge bg-base flex-shrink-0 h-topbar">
-        <h1 className="text-base font-semibold text-ink-primary">Calendario</h1>
+        <h1 className="text-base font-semibold text-ink-primary">Calendar</h1>
         {!isReadOnly && (
           <Link
             href={`/app/${orgSlug}/componer`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-brand hover:bg-brand-hover text-white rounded-lg transition-colors"
           >
             <Plus className="w-4 h-4" aria-hidden="true" />
-            Nuevo post
+            New post
           </Link>
         )}
       </div>

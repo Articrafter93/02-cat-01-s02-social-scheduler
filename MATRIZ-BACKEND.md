@@ -4,7 +4,8 @@
 
 | Rubro | Aplica | Proveedor / Decisión | Notas |
 |---|---|---|---|
-| **api** | SÍ | Next.js route handlers (`/api/*`) | Compositor, programar, worker de cola, reintento, cuentas. Rate-limited. |
+| **api** | SÍ | Next.js route handlers (`/api/*`) | Compositor, programar, worker de cola, reintento, cuentas. Auth + membresía + rol + RLS en cada ruta. |
+| **rate_limiting** | NO (MVP) | — | Diseño lo contempla, pero NO implementado en el MVP sandbox. Riesgo bajo: todas las rutas mutantes son auth-gated (login + membresía). En `get-real` se añadiría (ej. Upstash) antes de exponer a tráfico real. |
 | **auth** | SÍ | Supabase Auth + RLS + login mock | Roles admin/member/client_readonly; mock no productivo bloqueado en prod. |
 | **db** | SÍ | Supabase Postgres (schema dedicado `cat01s02_scheduler`) | RLS por `org_id`; schema-pooling + keep-alive obligatorio. |
 | **storage** | SÍ | Supabase Storage | Media de posts (imagen), políticas por org. |

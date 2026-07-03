@@ -5,7 +5,7 @@ import type { ScheduledPostWithDetails } from '@/types'
 
 interface Props { params: Promise<{ org: string }> }
 
-export default async function ColaPage({ params }: Props) {
+export default async function QueuePage({ params }: Props) {
   const { org: orgSlug } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -42,9 +42,9 @@ export default async function ColaPage({ params }: Props) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-5 py-3 border-b border-edge bg-base flex-shrink-0 h-topbar">
-        <h1 className="text-base font-semibold text-ink-primary">Cola de publicación</h1>
+        <h1 className="text-base font-semibold text-ink-primary">Publishing queue</h1>
         <span className="text-xs text-ink-disabled bg-base-panel border border-edge px-2 py-1 rounded tabular">
-          {posts?.length ?? 0} publicaciones
+          {posts?.length ?? 0} posts
         </span>
       </div>
       <div className="flex-1 overflow-auto p-5">
