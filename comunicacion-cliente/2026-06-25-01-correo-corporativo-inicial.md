@@ -98,7 +98,7 @@ Categoría primaria **04 (Aplicaciones web empresariales)** + secundarias **05 (
 - **Tipografía:** grotesca sans legible y técnica (p. ej. Inter/Geist); jerarquía clara; números tabulares para horarios/métricas.
 - **Composición:** layout de paneles/tarjetas; calendario como pieza central; barra de marca activa siempre visible; densidad alta pero con respiro.
 - **Tono de interfaz y microcopy:** preciso, sobrio, confiable; mensajes de error guiados y accionables.
-- **Materialización:** la dirección visual aprobada debe concretarse vía **Figma MCP** durante el desarrollo visual, sujeto a `asesor`, permisos reales del entorno y reglas free/pago según tipo de cliente. Hard blockers `DIRECCION-VISUAL.md` e `INSPECCION-VISUAL.md` aplican (renderizable: SÍ).
+- **Materialización:** la dirección visual aprobada se concreta con la ruta **free-first / code-first** del workspace — skill `frontend-design` + gate `diseño`, apoyada en `theme-factory` y `shadcn-ui`. Figma queda **descartado** (API/Dev Mode de pago; no aplica a un proyecto free-tier). Hard blockers `DIRECCION-VISUAL.md` e `INSPECCION-VISUAL.md` aplican (renderizable: SÍ) y son gratuitos, no dependen de Figma.
 
 ---
 
