@@ -134,6 +134,7 @@ export function QueueTable({ posts, isReadOnly }: Props) {
                     <td className="px-4 py-3 whitespace-nowrap text-xs text-ink-secondary tabular">
                       {new Date(post.scheduled_at).toLocaleString('en-US', {
                         day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+                        timeZone: post.timezone,
                       })}
                     </td>
                     <td className="px-4 py-3 text-xs text-ink-secondary tabular text-center">
