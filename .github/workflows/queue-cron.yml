@@ -1,8 +1,8 @@
-﻿name: Queue worker + Supabase keep-alive
+name: Queue worker + Supabase keep-alive
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 */6 * * *'
   workflow_dispatch: {}
 
 jobs:
