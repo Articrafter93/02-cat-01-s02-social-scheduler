@@ -216,7 +216,7 @@ export function CalendarView({ scheduledPosts }: Props) {
                       >
                         <div className="flex items-center gap-1">
                           <NetworkBadge network={sp.social_accounts.network} />
-                          <span className="tabular text-ink-secondary">{formatTime(sp.scheduled_at)}</span>
+                          <span className="tabular text-ink-secondary">{formatTime(sp.scheduled_at, sp.timezone)}</span>
                         </div>
                         <p className="text-ink-primary line-clamp-2">{sp.posts.body}</p>
                       </button>
@@ -258,7 +258,7 @@ export function CalendarView({ scheduledPosts }: Props) {
               />
             )}
             <div className="text-xs text-ink-disabled tabular space-y-1">
-              <p>Scheduled: {new Date(selected.scheduled_at).toLocaleString('en-US')}</p>
+              <p>Scheduled: {new Date(selected.scheduled_at).toLocaleString('en-US', { timeZone: selected.timezone })}</p>
               <p>Timezone: {selected.timezone}</p>
               <p>Attempts: {selected.attempts} / {selected.max_attempts}</p>
               {selected.last_error && (
