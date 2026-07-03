@@ -46,7 +46,30 @@ Build/lint/type-check verdes, pero la app no servía datos. La VFH destapó y co
 
 ## Verificacion para SELLO FINAL (URL desplegada — la emite `vrc`)
 
-- **Estado:** `PENDIENTE` (fuera de alcance del sello parcial)
+- **Estado:** `APROBADO` (2.ª VFH sobre la URL desplegada; firmada por el developer 2026-07-03)
+- **URL canonica:** https://cat-01-s02-social-scheduler.vercel.app (deploy `READY`, HTTP 200, alias correcto)
+- **Commit desplegado:** `ead6926` (incluye el fix de hydration #418)
+
+### Pruebas ejercidas en vivo sobre la URL publicada (conducidas por el agente)
+
+| # | Prueba sobre la URL desplegada | Resultado | Evidencia |
+|---|---|---|---|
+| 1 | Login demo (selector 3 roles + `demo1234` prellenado) en produccion | ✅ | `reports/vfh/final-01-login-deployed.png` |
+| 2 | Dashboard Admin con datos reales (Supabase conecta con llaves limpias) | ✅ | `reports/vfh/final-02-dashboard-deployed.png` |
+| 3 | Worker de cola `POST /api/queue/process → 200` (service_role en prod) | ✅ | red |
+| 4 | Consola **0 errores / 0 warnings** (hydration #418 corregido) | ✅ | `reports/vfh/final-03-queue-deployed-clean.png` |
+| 5 | Cliente read-only: aislamiento Brand Nova + `POST /api/posts → 403` | ✅ | `reports/vfh/final-04-client-readonly-deployed.png` |
+| 6 | Logout + re-login multi-rol sobre la URL | ✅ | flujo ejercido |
+
+**Bugs solo-de-deploy cazados y corregidos por la 2.ª VFH:** (1) `NEXT_PUBLIC_DEMO_MODE` enmascarado por entorno local → helper `-Override`; (2) valores con `\r\n` por piping PowerShell → helper CRLF-safe; (3) hydration mismatch #418 por fechas sin `timeZone` fijo → `timeZone` fijado (commit `ead6926`).
+
+**Nota (no bloqueante):** Chrome Password Manager marca la contrasena demo `demo1234` como filtrada (aviso del navegador, no de la app). El developer eligio mantenerla (opcion B); no es defecto del activo.
+
+### Confirmacion del developer (2.ª VFH)
+
+- **Frase literal del developer (copiada del chat):** "Confirmo que la URL desplegada funciona correctamente; apruebo la 2.ª VFH para el sello final."
+- **Confirmado por:** Fabian Cubillos (developer)
+- **Resultado 2.ª VFH (URL desplegada):** `APROBADO`
 
 ---
 
