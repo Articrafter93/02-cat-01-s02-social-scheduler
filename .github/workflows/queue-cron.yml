@@ -23,7 +23,7 @@ jobs:
   keep-alive:
     name: Supabase keep-alive
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
+    if: false
     steps:
       - name: Ping Supabase to prevent free-tier pause
         env:
