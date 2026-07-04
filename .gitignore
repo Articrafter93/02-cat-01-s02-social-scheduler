@@ -34,3 +34,25 @@ test-results/
 # === Vercel ===
 .vercel
 .env*.local
+
+# Andamiaje interno (excluido del repo publico)
+comunicacion-cliente/
+BRIEF.md
+PLAN.md
+QUE-FALTA.md
+CLASIFICACION-ACTIVO.md
+MATRIZ-BACKEND.md
+DIRECCION-VISUAL.md
+INSPECCION-VISUAL.md
+00-ARQUITECTURA-PROYECTO.md
+02-ARQUITECTURA-SITIO.md
+MOTION-STRATEGY.md
+GEMINI.md
+HERRAMIENTAS-EXTERNAS.md
+LESSONS.md
+SEGOP.md
+SELLO DE APROBACION*.md
+VERIFICACION-FUNCIONAL-HUMANA.md
+REVISION-RECLUTADOR.md
+reports/
+docs/GATE9_Revision_Reporte.md
