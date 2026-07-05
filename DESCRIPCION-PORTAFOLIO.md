@@ -5,7 +5,7 @@
 **Category:** CAT-01 — Operational Automations
 **Version:** commit `ead6926`
 **Public URL:** https://cat-01-s02-social-scheduler.vercel.app
-**Repository:** https://github.com/Articrafter93/cat-01-s02-social-scheduler
+**Repository:** https://github.com/Articrafter93/02-cat-01-s02-social-scheduler
 
 ## Executive summary
 A multi-tenant social-media scheduling platform for marketing agencies. One agency manages several brands, schedules posts to Instagram / LinkedIn / Facebook, and tracks their publication from an editorial calendar and a resilient queue with automatic retries. Exhibition demo with fictional data and sandbox accounts — no real network connections.
