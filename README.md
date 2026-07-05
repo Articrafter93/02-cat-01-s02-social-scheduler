@@ -3,7 +3,7 @@
 Multi-tenant SaaS for marketing agencies that manage several brands at once. Schedule, publish, and monitor posts across Instagram, LinkedIn, and Facebook with strict per-brand isolation, a reliable publishing queue with automatic retries, and a visible dead-letter queue.
 
 **Live demo:** _pending Vercel deploy_
-**Repository:** https://github.com/Articrafter93/cat-01-s02-social-scheduler
+**Repository:** https://github.com/Articrafter93/02-cat-01-s02-social-scheduler
 
 ---
 
@@ -87,7 +87,7 @@ src/
 ## Run locally
 
 ```bash
-git clone https://github.com/Articrafter93/cat-01-s02-social-scheduler
+git clone https://github.com/Articrafter93/02-cat-01-s02-social-scheduler
 cd cat-01-s02-social-scheduler
 npm install
 npm run dev        # → http://localhost:3000
