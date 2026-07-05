@@ -4,7 +4,7 @@
 **Status:** Final approval seal in force
 **Category:** CAT-01 — Operational Automations
 **Version:** commit `ead6926`
-**Public URL:** https://cat-01-s02-social-scheduler.vercel.app
+**Public URL:** https://social-media-scheduler-app.vercel.app
 **Repository:** https://github.com/Articrafter93/02-cat-01-s02-social-scheduler
 
 ## Executive summary

@@ -2,7 +2,7 @@
 
 Multi-tenant SaaS for marketing agencies that manage several brands at once. Schedule, publish, and monitor posts across Instagram, LinkedIn, and Facebook with strict per-brand isolation, a reliable publishing queue with automatic retries, and a visible dead-letter queue.
 
-**Live demo:** _pending Vercel deploy_
+**Live demo:** https://social-media-scheduler-app.vercel.app
 **Repository:** https://github.com/Articrafter93/02-cat-01-s02-social-scheduler
 
 ---
