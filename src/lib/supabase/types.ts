@@ -191,19 +191,21 @@ export interface Database {
     Functions: {
       claim_next_jobs: {
         Args: { p_worker_id: string; p_limit?: number }
+        // Mantener alineado con el RETURNS TABLE de la funcion en la migracion
+        // 005 (10 columnas). Antes declaraba `timezone` y `account_display_name`,
+        // que la funcion nunca devolvio: ningun consumidor los leia, pero el
+        // drift ocultaba que tipo y SQL habian dejado de coincidir.
         Returns: {
           id: string
           post_id: string
           account_id: string
           organization_id: string
-          scheduled_at: string
-          timezone: string
-          attempts: number
-          max_attempts: number
           post_body: string
           post_media_url: string | null
           account_network: string
-          account_display_name: string
+          scheduled_at: string
+          attempts: number
+          max_attempts: number
         }[]
       }
     }

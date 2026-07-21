@@ -6,7 +6,28 @@ const MAX_ATTEMPTS = parseInt(process.env.QUEUE_MAX_ATTEMPTS ?? '5')
 const BACKOFF_BASE = parseInt(process.env.QUEUE_BACKOFF_BASE_SECONDS ?? '60')
 const WORKER_ID = `worker-${process.env.VERCEL_REGION ?? 'local'}-${Date.now()}`
 
-export async function runQueueWorker(): Promise<{ processed: number; errors: number }> {
+/**
+ * Result of a worker run.
+ *
+ * `errors` counts JOB-level failures (a connector rejected a post). Those are
+ * expected in normal operation — the sandbox connectors simulate rejections on
+ * purpose — so they must NOT mark the run as failed.
+ *
+ * `fatal` is set only when the worker could not run at all (e.g. the claim RPC
+ * failed). That is the infrastructure-level failure the cron must surface.
+ *
+ * Keeping them apart matters: conflating them either hides real outages behind a
+ * green light (the bug that let `claim_next_jobs` fail unnoticed from 2026-07-20
+ * to 2026-07-21) or turns the cron red on normal demo activity, which trains
+ * everyone to ignore it.
+ */
+export type QueueRunResult = {
+  processed: number
+  errors: number
+  fatal: string | null
+}
+
+export async function runQueueWorker(): Promise<QueueRunResult> {
   const supabase = await createWorkerClient()
   let processed = 0
   let errors = 0
@@ -17,10 +38,10 @@ export async function runQueueWorker(): Promise<{ processed: number; errors: num
 
   if (claimError) {
     console.error('[queue] claim_next_jobs error:', claimError.message)
-    return { processed: 0, errors: 1 }
+    return { processed: 0, errors: 0, fatal: `claim_next_jobs: ${claimError.message}` }
   }
 
-  if (!jobs || jobs.length === 0) return { processed: 0, errors: 0 }
+  if (!jobs || jobs.length === 0) return { processed: 0, errors: 0, fatal: null }
 
   await Promise.all(
     jobs.map(async (job) => {
@@ -100,5 +121,5 @@ export async function runQueueWorker(): Promise<{ processed: number; errors: num
     })
   )
 
-  return { processed, errors }
+  return { processed, errors, fatal: null }
 }

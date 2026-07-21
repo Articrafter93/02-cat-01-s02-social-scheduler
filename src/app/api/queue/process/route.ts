@@ -18,6 +18,18 @@ export async function POST(req: NextRequest) {
 
   try {
     const result = await runQueueWorker()
+
+    // A worker-level failure must surface as 5xx: the cron checks the HTTP
+    // status, so returning 200 here would keep the light green while the queue
+    // silently stops draining (exactly what happened 2026-07-20 -> 2026-07-21,
+    // when claim_next_jobs returned 400 on every run and the cron stayed green).
+    // Job-level failures (result.errors) are NOT fatal — the sandbox connectors
+    // reject posts on purpose, so a red light on those would be a false alarm.
+    if (result.fatal) {
+      console.error('[queue/process] fatal:', result.fatal)
+      return NextResponse.json({ ok: false, error: result.fatal, ...result }, { status: 500 })
+    }
+
     return NextResponse.json({ ok: true, ...result })
   } catch (error) {
     console.error('[queue/process] error:', error)
